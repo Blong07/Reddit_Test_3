@@ -1,39 +1,34 @@
-//
-//  File2.swift
-//  Reddit_Test_2
-//
-//  Created by Alexander Blong on 29/04/2025.
-//
-
-// ContentView.swift
-
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var authManager: RedditAuthManager
+    @StateObject var authManager = RedditAuthManager()
+    @State private var isAccountCreated = false
 
     var body: some View {
-        VStack(spacing: 40) {
-            if authManager.isAuthenticated {
-                Text("Welcome, \(authManager.username ?? "Redditor")!")
-                    .font(.title2)
-            } else {
-                Button(action: {
-                    authManager.login()
-                }) {
-                    Text("Log in with Reddit")
-                        .bold()
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.orange)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+        if isAccountCreated {
+            NavigationStack {
+                VStack(spacing: 40) {
+                    if authManager.isAuthenticated, let name = authManager.username {
+                        Text("Hello, \(name)")
+
+                        NavigationLink(destination: ProfileView(username: name)) {
+                            Text("Go to Profile Page")
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                        }
+                    } else {
+                        Button("Log in with Reddit") {
+                            authManager.login()
+                        }
+                    }
                 }
-                .padding(.horizontal)
+                .padding()
             }
+            .environmentObject(authManager)
+        } else {
+            CreateAccountView(isAccountCreated: $isAccountCreated)
         }
-        .padding()
     }
 }
-
-

@@ -9,8 +9,8 @@ class RedditAuthManager: NSObject, ObservableObject {
     @Published var isAuthenticated = false
     @Published var username: String?
     
-    private let clientID    = "YOUR_CLIENT_ID"
-    private let redirectURI = "myappscheme://oauth"
+    private let clientID    = "mg-p4IZqI9ETpkl5giFw1w"
+    private let redirectURI = "mycoolapp://oauth"
     private let state       = UUID().uuidString
     private var authSession: ASWebAuthenticationSession?
 
