@@ -2,8 +2,10 @@ import SwiftUI
 
 struct CreateAccountView: View {
     @Binding var isAccountCreated: Bool
-    @State private var username = ""
-    @State private var password = ""
+    @State private var username = "" // states the username
+    @State private var password = "" // states the password
+    @State private var isPasswordVisible = false
+    @State private var errorMessage: String? = nil
 
     var body: some View {
         VStack(spacing: 20) {
@@ -13,31 +15,57 @@ struct CreateAccountView: View {
             TextField("Username", text: $username)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
 
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            HStack {
+                if isPasswordVisible {
+                    TextField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                } else {
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+
+                Button(action: {
+                    isPasswordVisible.toggle()
+                }) {
+                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                        .foregroundColor(.gray)
+                }
+            }
+
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .font(.caption)
+            }
 
             Button("Create Account") {
                 let existingUsernames = UserDefaults.standard.stringArray(forKey: "usernames") ?? []
 
-                guard password.count >= 8 else { // ensures password consists of 8 characters
-                    print("Password must be at least 8 characters long.")
+                let usernamePattern = "^(?=.*[0-9])(?=.*[^A-Za-z0-9]).+$"
+                let usernamePredicate = NSPredicate(format:"SELF MATCHES %@", usernamePattern)
+
+                guard usernamePredicate.evaluate(with: username) else {
+                    errorMessage = "Username must include at least one number and one symbol."
+                    return
+                }
+
+                guard password.count >= 8 else {
+                    errorMessage = "Password must be at least 8 characters."
                     return
                 }
 
                 guard !existingUsernames.contains(username) else {
-                    print("Username already exists.")
+                    errorMessage = "Username already taken."
                     return
                 }
 
-                // Save new username and password (basic demonstration; use secure storage for real apps)
+                // Save new username and password
                 var updatedUsernames = existingUsernames
                 updatedUsernames.append(username)
                 UserDefaults.standard.set(updatedUsernames, forKey: "usernames")
                 UserDefaults.standard.set(password, forKey: "password_\(username)")
                 UserDefaults.standard.set(true, forKey: "isAccountCreated")
                 isAccountCreated = true
-                
-                /* UserDefaults stores all pre-existing usernames to prevent users from creating similar usernames. This is important as if a user were to use the same username, there's a possibility they will also use the same password and accidentally log into the same account!*/
             }
             .padding()
             .background(Color.blue)
