@@ -12,16 +12,17 @@ struct CreateAccountView: View {
             Text("Create an Account")
                 .font(.title)
 
-            TextField("Username", text: $username)
+            TextField("Username", text: $username) // this is where the user will enter the username
                 .textFieldStyle(RoundedBorderTextFieldStyle())
 
             HStack {
-                if isPasswordVisible {
+                if isPasswordVisible { // password being visible if
                     TextField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 } else {
                     SecureField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
+                   
                 }
 
                 Button(action: {
@@ -29,6 +30,8 @@ struct CreateAccountView: View {
                 }) {
                     Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
                         .foregroundColor(.gray)
+                    
+                    /* the above section dictates how the password will be visible when the user taps (toggles) the eye icon which makes the password visible/non visible. */
                 }
             }
 
